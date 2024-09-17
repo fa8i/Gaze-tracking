@@ -9,7 +9,7 @@ from src.landmarker.mediapipe_landmarker import MediaPipeLandmarker
 from src.landmarker.blendshape_logger import BlendshapeLogger, BlendshapePlotter
 from src.utils.functions_utils import calculate_bounding_box
 
-model_path = 'face_landmarker.task'
+model_path = 'src/models/face_landmarker.task'
 csv_filename = 'blendshapes.csv'
 blendshapes = False
 frame_interval = 1
