@@ -26,7 +26,7 @@ src/
 │   ├── blendshape_logger.py    # Registro y manejo de formas faciales para seguimiento ocular.
 │   └── mediapipe_landmarker.py # Implementación basada en la biblioteca MediaPipe para el tracking.
 │
-├── demo/
+├── models/
 │   └── face_landmarker.task    # Modelo de deteccion de landmarks de mediapipe.
 │
 ├── utils/
