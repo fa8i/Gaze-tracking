@@ -16,7 +16,25 @@ El proyecto se centra en el uso de la visión por computadora para desarrollar u
 
 El proyecto está organizado de la siguiente manera:
 
-src/ │ ├── demo/  │ └── main.py # Script principal para ejecutar el sistema de demostración. │ ├── landmarker/ │ ├── blendshape_logger.py # Registro y manejo de formas faciales para seguimiento ocular. │ └── mediapipe_landmarker.py # Implementación basada en la biblioteca MediaPipe para el tracking. │ ├── models/ │ ├── face_landmarker.task # Modelo de deteccion de landmarks de mediapipe. │ ├── utils/ │ ├── class_utils.py # Utilidades relacionadas con las clases y estructuras de datos. │ ├── constant_utils.py # Definición de constantes utilizadas en el proyecto. │ └── functions_utils.py # Funciones auxiliares utilizadas en diversos módulos. │ └── face_landmarker.task # Archivo de configuración para el reconocimiento facial.
+src/
+│
+├── demo/
+│   ├── blendshapes.py          # Código de demostración para visualización de formas faciales.
+│   └── main.py                 # Script principal para ejecutar el sistema de demostración.
+│
+├── landmarker/
+│   ├── blendshape_logger.py    # Registro y manejo de formas faciales para seguimiento ocular.
+│   └── mediapipe_landmarker.py # Implementación basada en la biblioteca MediaPipe para el tracking.
+│
+├── demo/
+│   └── face_landmarker.task    # Modelo de deteccion de landmarks de mediapipe.
+│
+├── utils/
+│   ├── class_utils.py          # Utilidades relacionadas con las clases y estructuras de datos.
+│   ├── constant_utils.py       # Definición de constantes utilizadas en el proyecto.
+│   └── functions_utils.py      # Funciones auxiliares utilizadas en diversos módulos.
+│   
+└── face_landmarker.task        # Archivo de configuración para el reconocimiento facial.
 
 ### Dependencias
 
