@@ -1,7 +1,6 @@
 import sys
 import os
 import cv2
-import mediapipe as mp
 
 sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), "..", "..")))  # Adds root dir to path
 

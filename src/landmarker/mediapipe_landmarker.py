@@ -12,7 +12,7 @@ from mediapipe.tasks.python.core.base_options import BaseOptions
 
 sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), "..", "..")))  # Adds root dir to path
 
-from src.utils.class_utils import LandmarkPoint, EyeLandmarks, LandmarkDetectionResult
+from src.utils.class_utils import LandmarkPoint, EyeLandmarks, LandmarkSet
 from src.utils import constant_utils as cte
 
 class MediaPipeLandmarker:
@@ -42,15 +42,15 @@ class MediaPipeLandmarker:
         self.detector = FaceLandmarker.create_from_options(options)
         self._first_timestamp = time.time()
 
-    def detect(self, image: np.ndarray) -> Optional[LandmarkDetectionResult]:
+    def detect(self, image: np.ndarray) -> Optional[LandmarkSet]:
         """Detecta los landmarks faciales en una imagen dada.
 
         Args:
             image (np.ndarray): Imagen donde buscar los landmarks. Debe ser una imagen en color (BGR).
 
         Returns:
-            Tuple[Optional[LandmarkDetectionResult], Optional[FaceDetectionResult], Optional[dict]]:
-                - LandmarkDetectionResult: Objeto con los landmarks detectados, o None si no se detecta ninguna cara.
+            Tuple[Optional[LandmarkSet], Optional[FaceDetectionResult], Optional[dict]]:
+                - LandmarkSet: Objeto con los landmarks detectados, o None si no se detecta ninguna cara.
                 - FaceDetectionResult: Bounding box de la cara detectada, o None si no se detecta ninguna cara.
                 - dict: Diccionario de blendshapes detectados, o None si no se detecta ninguna cara.
         """
@@ -99,5 +99,5 @@ class MediaPipeLandmarker:
                 for key, value in zip(face_blendshapes_names, face_blendshapes_scores):
                     blendshapes[key] = value
 
-            return LandmarkDetectionResult(all_landmarks, left_eye, right_eye), blendshapes
+            return LandmarkSet(all_landmarks, left_eye, right_eye), blendshapes
         return None, None

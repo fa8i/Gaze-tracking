@@ -1,41 +1,36 @@
+from dataclasses import dataclass
 from typing import List
 
+@dataclass
 class LandmarkPoint:
-    def __init__(self, x: float, y: float, z: float):
-        self.x = x
-        self.y = y
-        self.z = z
+    """Clase que contiene las coordenadas x, y, z de cada landmark."""
+    x: float
+    y: float
+    z: float
 
+@dataclass
 class EyeLandmarks:
-    def __init__(
-        self,
-        upper_eyelid: List[LandmarkPoint],
-        lower_eyelid: List[LandmarkPoint],
-        inner_side: List[LandmarkPoint],
-        outer_side: List[LandmarkPoint],
-        eyebrow: List[LandmarkPoint],
-    ):
-        self.upper_eyelid = upper_eyelid
-        self.lower_eyelid = lower_eyelid
-        self.inner_side = inner_side
-        self.outer_side = outer_side
-        self.eyebrow = eyebrow
+    """Clase qie contiene listas de Landmarks de los ojos."""
+    upper_eyelid: List[LandmarkPoint]
+    lower_eyelid: List[LandmarkPoint]
+    inner_side: List[LandmarkPoint]
+    outer_side: List[LandmarkPoint]
+    eyebrow: List[LandmarkPoint]
 
-class LandmarkDetectionResult:
-    def __init__(
-        self,
-        all_landmarks: List[LandmarkPoint],
-        left_eye: EyeLandmarks,
-        right_eye: EyeLandmarks,
-    ):
-        self.all_landmarks = all_landmarks
-        self.left_eye = left_eye
-        self.right_eye = right_eye
+@dataclass
+class LandmarkSet:
+    """Clase que contiene el set de landmarks."""
+    all_landmarks: List[LandmarkPoint]
+    left_eye: EyeLandmarks
+    right_eye: EyeLandmarks
 
-class FaceDetectionResult:
-    def __init__(self, x, y, width, height):
-        self.x = x      
-        self.y = y      
-        self.width = width
-        self.height = height
+
+@dataclass
+class ROIBox:
+    """Clase que contiene la Region de interes (Region Of Interest Box)."""
+    x: float
+    y: float
+    width: float
+    height: float
+
 

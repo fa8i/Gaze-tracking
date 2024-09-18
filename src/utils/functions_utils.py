@@ -6,14 +6,14 @@ from typing import List
 
 sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), "..", "..")))
 
-from src.utils.class_utils import FaceDetectionResult, LandmarkPoint
+from src.utils.class_utils import ROIBox, LandmarkPoint
 
 
 def calculate_bounding_box(
     landmarks: List[LandmarkPoint],
     vertical_margin: float = 0.0,
     horizontal_margin: float = 0.0
-) -> FaceDetectionResult:
+) -> ROIBox:
     """
     Calcula el bounding box dado una lista de LandmarkPoint, ajustando el tamaño según los márgenes proporcionados.
 
@@ -23,7 +23,7 @@ def calculate_bounding_box(
         horizontal_margin (float): Porcentaje a añadir a la izquierda y derecha del bounding box original.
 
     Returns:
-        FaceDetectionResult: Bounding box que engloba todos los puntos proporcionados, ajustado con los márgenes.
+        ROIBox: Bounding box que engloba todos los puntos proporcionados, ajustado con los márgenes.
     """
     points = np.array([[point.x, point.y] for point in landmarks])
     x_min, x_max = np.min(points[:, 0]), np.max(points[:, 0])
@@ -53,7 +53,7 @@ def calculate_bounding_box(
     width = int(round(width))
     height = int(round(height))
 
-    return FaceDetectionResult(x_min, y_min, width, height)
+    return ROIBox(x_min, y_min, width, height)
 
 
 def plot_face_blendshapes_bar_graph(face_blendshapes):
