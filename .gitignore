@@ -7,7 +7,6 @@ myvenv/
 env/
 ENV/
 *.log
-*.task
 *.sqlite3
 *.db
 *.out
