@@ -1,11 +1,14 @@
 __pycache__/
+*.pyc
 *.py[cod]
 *$py.class
 .vscode/
+.venv/
 venv/
 myvenv/
 env/
 ENV/
+*.csv
 *.log
 *.sqlite3
 *.db

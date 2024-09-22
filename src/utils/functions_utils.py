@@ -57,22 +57,62 @@ def calculate_bounding_box(
 
 
 def plot_face_blendshapes_bar_graph(face_blendshapes):
-  # Extract the face blendshapes category names and scores.
-  face_blendshapes_names = face_blendshapes.keys()
-  face_blendshapes_scores = face_blendshapes.values()
-  # The blendshapes are ordered in decreasing score value.
-  face_blendshapes_ranks = range(len(face_blendshapes_names))
+    """
+    Graficar los blendshgapes en una gráfica de barras.
 
-  fig, ax = plt.subplots(figsize=(12, 12))
-  bar = ax.barh(face_blendshapes_ranks, face_blendshapes_scores, label=[str(x) for x in face_blendshapes_ranks])
-  ax.set_yticks(face_blendshapes_ranks, face_blendshapes_names)
-  ax.invert_yaxis()
+    Args:
+        face_blendshapes (dict): Diccionario que contiene el nombre de los blendshapes y su valor normalizado.
+    """
+    face_blendshapes_names = face_blendshapes.keys()
+    face_blendshapes_scores = face_blendshapes.values()
+    face_blendshapes_ranks = range(len(face_blendshapes_names))
 
-  # Label each bar with values
-  for score, patch in zip(face_blendshapes_scores, bar.patches):
-    plt.text(patch.get_x() + patch.get_width(), patch.get_y(), f"{score:.4f}", va="top")
+    fig, ax = plt.subplots(figsize=(12, 12))
+    bar = ax.barh(face_blendshapes_ranks, face_blendshapes_scores, label=[str(x) for x in face_blendshapes_ranks])
+    ax.set_yticks(face_blendshapes_ranks, face_blendshapes_names)
+    ax.invert_yaxis()
 
-  ax.set_xlabel('Score')
-  ax.set_title("Face Blendshapes")
-  plt.tight_layout()
-  plt.show()
+    for score, patch in zip(face_blendshapes_scores, bar.patches):
+        plt.text(patch.get_x() + patch.get_width(), patch.get_y(), f"{score:.4f}", va="top")
+
+    ax.set_xlabel('Score')
+    ax.set_title("Face Blendshapes")
+    plt.tight_layout()
+    plt.show()
+
+def extract_angles(transformation_matrix):
+    """
+    Transforma una matriz de transformación 4x4 en ángulos de Euler (pitch, yaw, roll) y vector de traslación.
+    
+    Args:
+        transformation_matrix (numpy.ndarray): Matriz de transformación 4x4.
+        
+    Returns:
+        tuple:
+            pitch (float): Ángulo de pitch en grados.
+            yaw (float): Ángulo de yaw en grados.
+            roll (float): Ángulo de roll en grados.
+            t (numpy.ndarray): Vector de traslación 3x1.
+    """
+    # Extract the rotation matrix (3x3) and the translation vector (3x1).
+    R = transformation_matrix[:3, :3]
+    t = transformation_matrix[:3, 3]
+    
+    # Calculate Euler angles
+    sy = np.sqrt(R[0,0] ** 2 + R[1,0] ** 2)
+    singular = sy < 1e-6
+
+    if not singular:
+        pitch = np.arctan2(R[2,1], R[2,2])
+        yaw = np.arctan2(-R[2,0], sy)
+        roll = np.arctan2(R[1,0], R[0,0])
+    else:
+        pitch = np.arctan2(-R[1,2], R[1,1])
+        yaw = np.arctan2(-R[2,0], sy)
+        roll = 0
+
+    # pitch = np.degrees(pitch)
+    # yaw = np.degrees(yaw)
+    # roll = np.degrees(roll)
+    
+    return pitch, yaw, roll, t
