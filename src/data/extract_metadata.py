@@ -67,11 +67,11 @@ def process_patient(patient_dir, output_dir):
 
     # Itera sobre cada directorio 'dayXX' en orden ascendente
     day_dirs = sorted([d for d in os.listdir(patient_dir) if os.path.isdir(os.path.join(patient_dir, d)) and d.startswith('day')])
-    for day_name in tqdm(day_dirs, desc=f"Paciente {patient_id}: Analizando {day_name} de {len(day_dirs)}"):
+    for day_name in day_dirs:
         day_dir = os.path.join(patient_dir, day_name)
         image_files = sorted([f for f in os.listdir(day_dir) if os.path.isfile(os.path.join(day_dir, f)) and f.lower().endswith(('.png', '.jpg', '.jpeg', '.bmp'))])
         
-        for image_name in image_files:
+        for image_name in tqdm(image_files, desc=f"Procesando {patient_id}/{day_name}"):
             image_path = os.path.join(day_dir, image_name)
             frame = cv2.imread(image_path)
             if frame is None:
@@ -119,7 +119,6 @@ def process_patient(patient_dir, output_dir):
     os.makedirs(output_dir, exist_ok=True)
     csv_file = os.path.join(output_dir, f"{patient_id}.csv")
     df.to_csv(csv_file, index=False)
-    print(f"Datos guardados en {csv_file}")
 
 def main(root_dir, output_dir):
     # Lista de directorios de pacientes
