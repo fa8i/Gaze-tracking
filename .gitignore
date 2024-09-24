@@ -16,3 +16,9 @@ ENV/
 *.o
 .DS_Store
 Thumbs.db
+p00/
+.png
+.jpg
+.mp4
+.mpeg
+.yaml

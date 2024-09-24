@@ -89,9 +89,9 @@ def extract_angles(transformation_matrix):
         
     Returns:
         tuple:
-            pitch (float): Ángulo de pitch en grados.
-            yaw (float): Ángulo de yaw en grados.
-            roll (float): Ángulo de roll en grados.
+            pitch (float): Ángulo de pitch.
+            yaw (float): Ángulo de yaw.
+            roll (float): Ángulo de roll.
             t (numpy.ndarray): Vector de traslación 3x1.
     """
     # Extract the rotation matrix (3x3) and the translation vector (3x1).
