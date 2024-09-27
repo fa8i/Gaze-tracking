@@ -9,7 +9,7 @@ import yaml
 
 sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), "..", "..")))
 
-from src.data_collection.webcam import WebcamSource
+from src.services.webcam import WebcamSource
 
 
 def record_video(width: int, height: int, fps: int) -> None:
@@ -30,7 +30,7 @@ def record_video(width: int, height: int, fps: int) -> None:
         source.show(frame, only_print=idx % 5 != 0)
 
 
-def calibration(image_path, every_nth: int = 1, debug: bool = False, chessboard_grid_size=(7, 7)):
+def calibration(image_path, every_nth: int = 5, debug: bool = False, chessboard_grid_size=(9, 6)):
     """
     Perform camera calibration on the previously collected images.
     Creates `calibration_matrix.yaml` with the camera intrinsic matrix and the distortion coefficients.
@@ -64,7 +64,7 @@ def calibration(image_path, every_nth: int = 1, debug: bool = False, chessboard_
 
         # Find the chess board corners
         ret, corners = cv2.findChessboardCorners(gray, (x, y), None)
-
+        print(ret)
         # If found, add object points, image points (after refining them)
         if ret == True:
             objpoints.append(objp)  # Certainly, every loop objp is the same, in 3D.
@@ -104,7 +104,7 @@ def calibration(image_path, every_nth: int = 1, debug: bool = False, chessboard_
 
 if __name__ == '__main__':
     # 1. record video
-    record_video(width=1280, height=720, fps=30)
-    # 2. split video into frames e.g. `ffmpeg -i 2021-10-15_10:30:00.mp4 -f image2 frames/video_01-%07d.png` and delete blurry images
+    # record_video(width=1280, height=720, fps=30)
+    # 2. split video into frames e.g. `ffmpeg -i 2024-09-26_19:49:39.mp4 frames/video_01-%07d.png` and delete blurry images
     # 3. run calibration on images
-    calibration('./frames', 10, debug=True)
+    calibration('./src/data_collection/frames', 30, debug=True)

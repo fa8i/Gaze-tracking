@@ -9,8 +9,8 @@ import pandas as pd
 
 sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), "..", "..")))
 
-from src.data_collection.utils import get_monitor_dimensions, show_point_on_screen
-from src.data_collection.webcam import WebcamSource
+from src.services.utils import get_monitor_dimensions, show_point_on_screen
+from src.services.webcam import WebcamSource
 
 WINDOW_NAME = 'data collection'
 
@@ -49,8 +49,8 @@ def main(base_path: str, monitor_mm=None, monitor_pixels=None):
 if __name__ == '__main__':
     parser = ArgumentParser()
     parser.add_argument("--base_path", type=str, default='./data/p00')
-    parser.add_argument("--monitor_mm", type=str, default=None, help="milimetros de tu pantalla separado por comas: 334,1200")
-    parser.add_argument("--monitor_pixels", type=str, default=None, help="pixeles de tu pantalla separado por comas: 1920,1200")
+    parser.add_argument("--monitor_mm", type=str, default='334,215', help="milimetros de tu pantalla separado por comas")
+    parser.add_argument("--monitor_pixels", type=str, default='1920,1200', help="pixeles de tu pantalla separado por comas")
     args = parser.parse_args()
 
     if args.monitor_mm is not None:

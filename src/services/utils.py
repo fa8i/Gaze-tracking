@@ -11,7 +11,7 @@ from typing import Tuple, Union
 
 sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), "..", "..")))
 
-from src.data_collection.webcam import WebcamSource
+from src.services.webcam import WebcamSource
 
 
 def get_monitor_dimensions() -> Union[Tuple[Tuple[int, int], Tuple[int, int]], Tuple[None, None]]:
