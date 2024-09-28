@@ -48,7 +48,7 @@ def main(base_path: str, monitor_mm=None, monitor_pixels=None):
 
 if __name__ == '__main__':
     parser = ArgumentParser()
-    parser.add_argument("--base_path", type=str, default='./data/p00')
+    parser.add_argument("--base_path", type=str, default='./data/p01')
     parser.add_argument("--monitor_mm", type=str, default='334,215', help="milimetros de tu pantalla separado por comas")
     parser.add_argument("--monitor_pixels", type=str, default='1920,1200', help="pixeles de tu pantalla separado por comas")
     args = parser.parse_args()
