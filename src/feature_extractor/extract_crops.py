@@ -77,8 +77,8 @@ def extract_eyes_crops(image_path: str, landmarker: MediaPipeLandmarker, output_
     )
 
     # Calcular bounding boxes para cada ojo
-    right_eye_bbox = calculate_bounding_box(right_eye_landmarks, margins=eye_margins, aspect_ratio=2/1)
-    left_eye_bbox = calculate_bounding_box(left_eye_landmarks, margins=eye_margins, aspect_ratio=2/1)
+    right_eye_bbox = calculate_bounding_box(right_eye_landmarks, margins=eye_margins, aspect_ratio=3/2)
+    left_eye_bbox = calculate_bounding_box(left_eye_landmarks, margins=eye_margins, aspect_ratio=3/2)
 
     # Determinar cuál ojo es el derecho y cuál el izquierdo en la imagen
     if right_eye_bbox.x < left_eye_bbox.x:
