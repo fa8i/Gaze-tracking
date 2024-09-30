@@ -10,8 +10,8 @@ sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), "..", "
 from src.landmarker.mediapipe_landmarker import MediaPipeLandmarker
 from src.utils.functions_utils import calculate_bounding_box
 
-face_margins = (0.3, 0.15)
-eye_margins = (0.2, 0.5)
+face_margins = (-0.1, 0.0)
+eye_margins = (0.25, 0.5)
 
 
 def extract_face_crops(image_path: str, landmarker: MediaPipeLandmarker, output_path: str):
@@ -96,7 +96,7 @@ def extract_eyes_crops(image_path: str, landmarker: MediaPipeLandmarker, output_
         # Guardar el recorte
         base_name = os.path.basename(image_path)
         name, ext = os.path.splitext(base_name)
-        output_path = os.path.join(output_dir, f"{name}_{label}{ext}")
+        output_path = os.path.join(output_dir, f"{name}-{label}{ext}")
         cv2.imwrite(output_path, eye_crop)
         print(f"Guardado: {output_path}")
 
@@ -131,7 +131,7 @@ def extract_images(base_path: str, output_folder: str, landmarker: MediaPipeLand
                     name, ext = os.path.splitext(base_name)
 
                     if 'face' in features:
-                        face_output_path = os.path.join(output_subdir, f"{name}_face{ext}")
+                        face_output_path = os.path.join(output_subdir, f"{name}-full_face{ext}")
                         extract_face_crops(image_path, landmarker, face_output_path)
 
                     if 'eyes' in features:
