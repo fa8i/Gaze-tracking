@@ -1,11 +1,12 @@
 import sys
 import os
 import cv2
+import numpy as np
 from glob import glob
 import argparse
-from typing import List, Tuple
+from typing import List
 
-sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), "..", "..")))  # Adds root dir to path
+sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), "..", ".."))) 
 
 from src.landmarker.mediapipe_landmarker import MediaPipeLandmarker
 from src.utils.functions_utils import calculate_bounding_box
@@ -14,58 +15,67 @@ face_margins = (-0.1, 0.0)
 eye_margins = (0.25, 0.5)
 
 
-def extract_face_crops(image_path: str, landmarker: MediaPipeLandmarker, output_path: str):
+def extract_crops(image_path: str, landmarker: MediaPipeLandmarker, output_dir: str, features: List[str]):
     """
-    Extrae y guarda el recorte de la cara de una imagen.
+    Extrae y guarda los recortes de la cara y los ojos de una imagen, rellenando con negro si los bounding boxes salen de los límites.
 
     Args:
         image_path (str): Ruta de la imagen de entrada.
         landmarker (MediaPipeLandmarker): Instancia de MediaPipeLandmarker para la detección de landmarks.
-        output_path (str): Ruta donde se guardará el recorte de la cara.
+        output_dir (str): Carpeta donde se guardarán los recortes de la cara y los ojos.
+        features (List[str]): Lista de características a extraer ('face', 'eyes').
     """
     image = cv2.imread(image_path)
     if image is None:
         print(f"Error al cargar la imagen: {image_path}")
         return
 
-    # Detectar landmarks
+    # Detectar landmarks de una vez
     result, _, _ = landmarker.detect(image)
 
     if not result:
         print(f"No se detectó una cara en la imagen: {image_path}")
         return
 
+    # Obtener la ruta relativa y crear directorios de salida
+    base_name = os.path.basename(image_path)
+    name, ext = os.path.splitext(base_name)
+    output_subdir = os.path.join(output_dir)
+    os.makedirs(output_subdir, exist_ok=True)
+
+    # Extraer y guardar el recorte de la cara si está en las características
+    if 'face' in features:
+        extract_and_save_face_crop(image, result.all_landmarks, output_subdir, name, ext)
+
+    # Extraer y guardar los recortes de los ojos si está en las características
+    if 'eyes' in features:
+        extract_and_save_eyes_crops(image, result, output_subdir, name, ext)
+
+
+def extract_and_save_face_crop(image: np.ndarray, landmarks, output_subdir: str, name: str, ext: str):
+    """
+    Extrae el recorte de la cara y lo guarda, rellenando con negro si el bounding box sale de los límites.
+    """
     # Calcular bounding box de la cara
-    face_bbox = calculate_bounding_box(result.all_landmarks, margins=face_margins, aspect_ratio=1.0)
+    face_bbox = calculate_bounding_box(landmarks, margins=face_margins, aspect_ratio=1.0)
 
-    # Recortar la cara
-    x_min, y_min, width, height = face_bbox.x, face_bbox.y, face_bbox.width, face_bbox.height
-    face_crop = image[y_min:y_min + height, x_min:x_min + width]
+    # Recortar y ajustar la cara, rellenando con negro si es necesario
+    face_crop = crop_and_pad(image, face_bbox)
 
-    # Guardar el recorte
-    cv2.imwrite(output_path, face_crop)
-    print(f"Guardado: {output_path}")
-
-def extract_eyes_crops(image_path: str, landmarker: MediaPipeLandmarker, output_dir: str):
-    """
-    Extrae y guarda los recortes de los ojos de una imagen.
-
-    Args:
-        image_path (str): Ruta de la imagen de entrada.
-        landmarker (MediaPipeLandmarker): Instancia de MediaPipeLandmarker para la detección de landmarks.
-        output_dir (str): Carpeta donde se guardarán los recortes de los ojos.
-    """
-    image = cv2.imread(image_path)
-    if image is None:
-        print(f"Error al cargar la imagen: {image_path}")
+    # Verificar si el recorte está vacío
+    if np.count_nonzero(face_crop) == 0:
+        print(f"El recorte de la cara está vacío: {name}{ext}")
         return
 
-    result, _, _ = landmarker.detect(image)
+    face_output_path = os.path.join(output_subdir, f"{name}-full_face{ext}")
+    cv2.imwrite(face_output_path, face_crop)
+    print(f"Guardado: {face_output_path}")
 
-    if not result:
-        print(f"No se detectaron ojos en la imagen: {image_path}")
-        return
 
+def extract_and_save_eyes_crops(image: np.ndarray, result, output_subdir: str, name: str, ext: str):
+    """
+    Extrae los recortes de los ojos y los guarda, rellenando con negro si los bounding boxes salen de los límites.
+    """
     # Obtener landmarks para cada ojo
     right_eye_landmarks = (
         result.right_eye.upper_eyelid + result.right_eye.lower_eyelid +
@@ -82,30 +92,66 @@ def extract_eyes_crops(image_path: str, landmarker: MediaPipeLandmarker, output_
 
     # Determinar cuál ojo es el derecho y cuál el izquierdo en la imagen
     if right_eye_bbox.x < left_eye_bbox.x:
-        first_eye_bbox, first_eye_label = right_eye_bbox, "right_eye"
-        second_eye_bbox, second_eye_label = left_eye_bbox, "left_eye"
+        eye_boxes = [(right_eye_bbox, "right_eye"), (left_eye_bbox, "left_eye")]
     else:
-        first_eye_bbox, first_eye_label = left_eye_bbox, "left_eye"
-        second_eye_bbox, second_eye_label = right_eye_bbox, "right_eye"
+        eye_boxes = [(left_eye_bbox, "left_eye"), (right_eye_bbox, "right_eye")]
 
     # Recortar y guardar cada ojo
-    for bbox, label in [(first_eye_bbox, first_eye_label), (second_eye_bbox, second_eye_label)]:
-        x_min, y_min, width, height = bbox.x, bbox.y, bbox.width, bbox.height
-        eye_crop = image[y_min:y_min + height, x_min:x_min + width]
+    for bbox, label in eye_boxes:
+        eye_crop = crop_and_pad(image, bbox)
+
+        # Verificar si el recorte está vacío
+        if np.count_nonzero(eye_crop) == 0:
+            print(f"El recorte del {label} está vacío: {name}{ext}")
+            return
 
         # Guardar el recorte
-        base_name = os.path.basename(image_path)
-        name, ext = os.path.splitext(base_name)
-        output_path = os.path.join(output_dir, f"{name}-{label}{ext}")
-        cv2.imwrite(output_path, eye_crop)
-        print(f"Guardado: {output_path}")
+        eye_output_path = os.path.join(output_subdir, f"{name}-{label}{ext}")
+        cv2.imwrite(eye_output_path, eye_crop)
+        print(f"Guardado: {eye_output_path}")
+
+
+def crop_and_pad(image: np.ndarray, bbox) -> np.ndarray:
+    """
+    Recorta la región de una imagen dada por el bounding box. Si la región sale de los límites de la imagen,
+    rellena con negro para mantener el tamaño original del bounding box.
+
+    Args:
+        image (np.ndarray): Imagen original.
+        bbox: Bounding box que define la región a recortar.
+
+    Returns:
+        np.ndarray: Imagen recortada con el tamaño original del bounding box y relleno negro si es necesario.
+    """
+    h, w, _ = image.shape
+
+    # Ajustar coordenadas si están fuera de los límites de la imagen
+    x_min_corrected = max(bbox.x, 0)
+    y_min_corrected = max(bbox.y, 0)
+    x_max_corrected = min(bbox.x + bbox.width, w)
+    y_max_corrected = min(bbox.y + bbox.height, h)
+
+    # Recortar la imagen dentro de los límites
+    crop = image[y_min_corrected:y_max_corrected, x_min_corrected:x_max_corrected]
+
+    # Crear una imagen vacía (negra) del tamaño original del bounding box
+    full_crop = np.zeros((bbox.height, bbox.width, 3), dtype=np.uint8)
+
+    # Pegar el recorte dentro de la imagen negra en la posición correcta
+    insert_x = x_min_corrected - bbox.x  # Si se salió por la izquierda, el valor será positivo
+    insert_y = y_min_corrected - bbox.y  # Si se salió por arriba, el valor será positivo
+    full_crop[insert_y:insert_y + (y_max_corrected - y_min_corrected),
+              insert_x:insert_x + (x_max_corrected - x_min_corrected)] = crop
+
+    return full_crop
+
 
 def extract_images(base_path: str, output_folder: str, landmarker: MediaPipeLandmarker, features: List[str]):
     """
-    Recorre las carpetas base_path para encontrar imágenes y extraer los recortes de la cara y/o los ojos.
+    Recorre las carpetas en base_path para encontrar imágenes y extraer los recortes de la cara y/o los ojos.
 
     Args:
-        base_path (str): Ruta base donde se encuentran las carpetas 'p*' y 'day*'.
+        base_path (str): Ruta base donde se encuentran las carpetas de imágenes.
         output_folder (str): Carpeta donde se guardarán los recortes.
         landmarker (MediaPipeLandmarker): Instancia de MediaPipeLandmarker para la detección de landmarks.
         features (List[str]): Lista de características a extraer ('face', 'eyes').
@@ -126,16 +172,8 @@ def extract_images(base_path: str, output_folder: str, landmarker: MediaPipeLand
                     output_subdir = os.path.join(output_folder, relative_dir)
                     os.makedirs(output_subdir, exist_ok=True)
 
-                    # Definir las rutas de salida para los recortes
-                    base_name = os.path.basename(image_path)
-                    name, ext = os.path.splitext(base_name)
-
-                    if 'face' in features:
-                        face_output_path = os.path.join(output_subdir, f"{name}-full_face{ext}")
-                        extract_face_crops(image_path, landmarker, face_output_path)
-
-                    if 'eyes' in features:
-                        extract_eyes_crops(image_path, landmarker, output_subdir)
+                    # Extraer recortes de la cara y/o los ojos según las características solicitadas
+                    extract_crops(image_path, landmarker, output_subdir, features)
 
 def main():
     parser = argparse.ArgumentParser(description="Extraer recortes de la cara y/o los ojos de imágenes en carpetas.")
@@ -155,11 +193,11 @@ def main():
     input_dir = args.input_dir
     output_dir = args.output_dir
     features = args.features
-    
+
     # Inicializar el landmarker
     model_path = '../models/face_landmarker.task'
     landmarker = MediaPipeLandmarker(
-        detector_path=model_path, 
+        detector_path=model_path,
         tracker=False,
         blendshapes=False,
         transformation_matrixes=False
