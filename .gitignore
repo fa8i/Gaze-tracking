@@ -23,3 +23,5 @@ p00/
 .mpeg
 .yaml
 frames/
+checkpoints/
+*logs/
