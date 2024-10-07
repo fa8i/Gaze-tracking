@@ -16,7 +16,7 @@ ENV/
 *.o
 .DS_Store
 Thumbs.db
-p00/
+p0*/
 .png
 .jpg
 .mp4

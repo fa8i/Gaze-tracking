@@ -310,7 +310,6 @@ val_loader = DataLoader(
     pin_memory=True
 )
 
-
 # Instanciar el modelo
 model = Model()
 
