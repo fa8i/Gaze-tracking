@@ -15,8 +15,9 @@ blendshapes = False
 transformation_matrixes = False
 frame_interval = 30
 
-face_margins = (0.3, 0.15)
-eye_margins = (0.2, 0.5)
+face_margins = (-0.1, 0.0)
+eye_margins = (0.25, 0.5)
+
 def main():
     landmarker = MediaPipeLandmarker(
         detector_path=model_path, 
